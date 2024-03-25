@@ -1,5 +1,6 @@
-import time
 import csv
+import re
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -9,7 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 csv_file = open('restaurants.csv', mode='w', newline='', encoding='utf-8')
 csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['Name', 'Category', 'Reviews', 'Address'])
+csv_writer.writerow(['name', 'category', 'review_count', 'address', 'rating', 'number', 'image_url'])
 
 options = Options()
 options.add_argument("--disable-blink-features=AutomationControlled")
@@ -31,7 +32,7 @@ searchIFrame = driver.find_element(By.CSS_SELECTOR, "iframe#searchIframe")
 driver.switch_to.frame(searchIFrame)
 time.sleep(1)
 
-for _ in range(5): # 6페이지까지
+for _ in range(5):  # 6페이지까지
     scrollable_div = driver.find_element(By.CSS_SELECTOR, "div.mFg6p")
 
     scroll_div = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div[1]")
@@ -47,7 +48,9 @@ for _ in range(5): # 6페이지까지
     print(len(restaurant_names))
 
     for i, name in enumerate(restaurant_names):
-        print(name.text, restaurant_categories[i].text, reviews[i].text)
+        review = reviews[i].text.replace("리뷰 ", "")
+        category = restaurant_categories[i].text.replace("\"", "")
+        print(name.text, category, review)
 
         name.click()
         time.sleep(1)
@@ -65,12 +68,34 @@ for _ in range(5): # 6페이지까지
         address = address.replace("도로명", "")
         print(address)
 
+        try:
+            rating = driver.find_element(By.CLASS_NAME, "LXIwF").text.split("\n")[1]
+        except:
+            rating = ""
+
+        try:
+            number = driver.find_element(By.CLASS_NAME, "xlx7Q").text
+        except:
+            number = ""
+
+        try:
+            style_attribute = driver.find_element(By.XPATH, "//div[contains(@class, 'K0PDV')]").get_attribute('style')
+            match = re.search(r'url\("([^"]+)"\)', style_attribute)
+            if match:
+                image_url = match.group(1)
+            else:
+                image_url = ""
+        except:
+            image_url = ""
+
+        print(rating, number, image_url)
+
         driver.switch_to.default_content()
         time.sleep(1)
         driver.switch_to.frame(searchIFrame)
         time.sleep(1)
 
-        csv_writer.writerow([name.text, restaurant_categories[i].text, reviews[i].text, address])
+        csv_writer.writerow([name.text, category, review, address, rating, number, image_url])
 
     driver.find_element(By.XPATH, "//a[.//span[contains(text(), '다음페이지')]]").click()
 
