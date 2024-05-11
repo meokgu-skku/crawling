@@ -102,8 +102,11 @@ for p in range(3):  # 4페이지까지
 
         print(rating, number, restaurant_image_url)
 
-        driver.find_element(By.CLASS_NAME, 'nmfMK').click()
-        time.sleep(1)
+        try:
+            driver.find_element(By.CLASS_NAME, 'nmfMK').click()
+            time.sleep(1)
+        except:
+            print()
 
         try:
             driver.find_element(By.CSS_SELECTOR, 'a.gKP9i.RMgN0').click()  # 영업 정보 클릭
