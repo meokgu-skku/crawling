@@ -41,7 +41,7 @@ driver.switch_to.frame(searchIFrame)
 time.sleep(1)
 
 restaurant_id = 1
-for p in range(3):  # 4페이지까지
+for p in range(4):  # 4페이지까지
     scrollable_div = driver.find_element(By.CSS_SELECTOR, "div.mFg6p")
 
     scroll_div = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div[1]")
